@@ -54,8 +54,8 @@ class NotebookObject:
           admin password.
 
         - ``accounts`` -- boolean (default: ``False``) if True, any
-          visitor to the website will be able to create a new account.
-          If False, only the admin can create accounts (currently,
+          visitor to the website will be able to create a new *local* account.
+          If False, only the admin can create local accounts (currently,
           this can only be done by running with ``accounts=True`` and
           shutting down the server properly (``SIG_INT`` or
           ``SIG_TERM``), or on the command line with, e.g.,
@@ -68,6 +68,9 @@ class NotebookObject:
               user_manager.set_accounts(True)
               user_manager.add_user("username", "password", "email@place", "user")
               nb.save()
+
+          .. note:: OpenID accounts and local accounts are separate things.  Enabling
+             OpenID accounts allows OpenID accounts to be created, even if ``accounts=False``.
 
         - ``automatic_login`` -- boolean (default: True) whether to pop up
           a web browser and automatically log into the server as admin.  You can

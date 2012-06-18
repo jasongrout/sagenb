@@ -326,7 +326,7 @@ def set_profiles():
                 raise ValueError
             try:
                 new_user = User(username, '', email = resp.email, account_type='user') 
-                g.notebook.user_manager().add_user_object(new_user)
+                g.notebook.user_manager().add_user_object(new_user, force=True)
             except ValueError:
                 parse_dict['creation_error'] = True
                 raise ValueError
