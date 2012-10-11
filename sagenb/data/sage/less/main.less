@@ -1,5 +1,4 @@
 @background_color: #eee;
-@the_container_width: 700px;
 
 /* MIXINS */
 .rounded-corners (@radius: 5px) {
@@ -79,7 +78,6 @@ body {
 }
 
 .the_container {
-	width: @the_container_width;
 	margin-left: auto;
 	margin-right: auto;
 	
@@ -94,25 +92,6 @@ body {
 	}
 }
 
-/* this is the responsive styling for the page and container.
-it makes the page automatically fit the screen when the 
-screen width is less than the container width */
-@media (max-width: @the_container_width) {
-	/* here we may want to also change the body padding */
-
-	.the_container {
-		width: auto;
-		margin-left: 0px;
-		margin-right: 0px;
-		
-		/* these styles are adjusted to create a 20px space 
-		around the page since the body has a 20px padding */
-		.the_page {
-			margin-top: 25px;
-			margin-bottom: 20px;
-		}
-	}
-}
 
 @title_font_size: 42px;
 h1.title {
