@@ -597,17 +597,23 @@ class FilesystemDatastore(Datastore):
             sage: DS.worksheets('sageuser')
             [sageuser/2: [Cell 0: in=, out=]]
         """
+        v = []
+        for inode in self.worksheet_inodes(username):
+            try:
+                v.append(self.load_worksheet(username, inode))
+            except Exception:
+                import traceback
+                print "Warning: problem loading %s/%s: %s"%(username, id_number, traceback.format_exc())
+        return v
+
+    def worksheet_inodes(self, username):
+        """
+        Return a list of worksheet inode numbers for a given user.  If the user does not exist, an empty list is returned.
+        """
         path = self._abspath(self._user_path(username))
         if not os.path.exists(path): return []
-        v = []
-        for id_number in os.listdir(path):
-            if id_number.isdigit():
-                try:
-                    v.append(self.load_worksheet(username, int(id_number)))
-                except Exception:
-                    import traceback
-                    print "Warning: problem loading %s/%s: %s"%(username, id_number, traceback.format_exc())
-        return v
+        return [int(inode) for inode in os.listdir(path) if inode.isdigit()]
+
 
     def readonly_user(self, username):
         """
