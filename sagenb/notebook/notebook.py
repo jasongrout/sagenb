@@ -87,29 +87,43 @@ class WorksheetDict(dict):
         dict.__init__(self, *args, **kwds)
 
     def __getitem__(self, item):
+        """
+        Items have the form (username, path), where path is a string, or (username, ws_inode), where ws_inode is an integer.
+
+        For backwards compatibility, we also support items that are strings of the form 'username/ws_inode'
+        """
+        if isinstance(item, basestring):
+            username, ws_inode = item.split('/', 1)
+            ws_inode = int(ws_inode)
+            item = (username, ws_inode)
+
         if item in self:
             return dict.__getitem__(self, item)
 
-        try:
-            if '/' not in item:
+        username = item[0]
+        if isinstance(item[1], basestring):
+            path = item[1]
+            try:
+                ws_inode = self.storage.worksheet_inode(username, path)
+            except ValueError:
                 raise KeyError, item
-        except TypeError:
-            raise KeyError, item
+            if (username, ws_inode) in self:
+                worksheet = dict.__getitem__((username, ws_inode))
+                dict.__setitem__(self, (username, path), worksheet)
+                return worksheet
+        else:
+            path = False
+            ws_inode = int(item[1])
 
-        username, id = item.split('/')
         try:
-            id=int(id)
+            worksheet = self.storage.load_worksheet(username, ws_inode)
         except ValueError:
             raise KeyError, item
-        try:
-            worksheet = self.storage.load_worksheet(username, id)
-        except ValueError:
-            raise KeyError, item
-
-        dict.__setitem__(self, item, worksheet)
+        dict.__setitem__(self, (username, ws_inode), worksheet)
+        if path:
+            dict.__setitem__(self, (username, path), worksheet)
         return worksheet
-        
-        
+
 class Notebook(object):
     HISTORY_MAX_OUTPUT = 92*5
     HISTORY_NCOLS = 90
