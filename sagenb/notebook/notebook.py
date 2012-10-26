@@ -164,17 +164,8 @@ class Notebook(object):
         W = WorksheetDict(self)
         self.__worksheets = W
 
-        # datastore
-        # Store / Refresh public worksheets
-        for id_number in os.listdir(self.__storage._abspath(self.__storage._user_path("pub"))):
-            if id_number.isdigit():
-                a = "pub/" + str(id_number)
-                if a not in self.__worksheets:
-                    try:
-                        self.__worksheets[a] = self.__storage.load_worksheet("pub", int(id_number))
-                    except Exception:
-                        import traceback
-                        print "Warning: problem loading %s/%s: %s"%("pub", int(id_number), traceback.format_exc())
+        # Prime the worksheet cache with public worksheets
+        self.pub_worksheets()
 
         # Set the openid-user dict
         try:
@@ -360,28 +351,14 @@ class Notebook(object):
 
     # datastore
     def pub_worksheets(self):
-        path = self.__storage._abspath(self.__storage._user_path("pub"))
-        v = []
-        for id_number in os.listdir(path):
-            if id_number.isdigit():
-                a = "pub/" + id_number
-                if a in self.__worksheets:
-                    v.append(self.__worksheets[a].worksheet_that_was_published())
-                else:
-                    try:
-                        w = self.__storage.load_worksheet("pub", int(id_number)).worksheet_that_was_published()
-                        v.append(w)
-                        self.__worksheets[a] = w
-                    except Exception:
-                        import traceback
-                        print "Warning: problem loading %s/%s: %s"%("pub", id_number, traceback.format_exc())
+        """Return public worksheets.  This is separate because we always want to keep the cache of public worksheets."""
+        v = [self.__worksheets[("pub", inode)] for inode in self.__storage.worksheet_inodes("pub")]
         return v
 
     def users_worksheets(self, username):
         r"""
         Returns all worksheets owned by `username`
         """
-
         if username == "pub":
             return self.pub_worksheets()
 
