@@ -148,8 +148,8 @@ class Notebook(object):
         try:
             self.__conf = S.load_server_conf()
         except IOError:
-            # Worksheet has never been saved before, so the server conf doesn't exist.
-            self.__worksheets = WorksheetDict(self)
+            # self.__conf gets created automatically if it doesn't exist
+            pass
 
         from user_manager import SimpleUserManager, OpenIDUserManager
         self._user_manager = OpenIDUserManager(conf=self.conf()) if user_manager is None else user_manager
