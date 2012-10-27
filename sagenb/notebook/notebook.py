@@ -173,8 +173,7 @@ class Notebook(object):
             pass
 
         # Set the list of worksheets
-        W = WorksheetDict(self)
-        self.__worksheets = W
+        self.__worksheets = WorksheetDict(self)
 
         # Prime the worksheet cache with public worksheets
         self.pub_worksheets()
@@ -554,7 +553,7 @@ class Notebook(object):
             sage: nb.worksheet_names()
             ['sage/0', 'wstein/0']
         """
-        W = self.__worksheets.keys()
+        W = ["%s/%s"%(u,i) for u,i in self.__worksheets if isinstance(i,int)]
         W.sort()
         return W
 
@@ -1351,9 +1350,8 @@ class Notebook(object):
         S.save_server_conf(self.conf())
         self._user_manager.save(S)
         # Save the non-doc-browser worksheets.
-        for n, W in self.__worksheets.items():
-            if not n.startswith('doc_browser'):
-                S.save_worksheet(W)
+        for W in [v for k,v in self.__worksheets.items() if k[0] != 'doc_browser']:
+            S.save_worksheet(W)
         if hasattr(self, '_user_history'):
             for username, H in self._user_history.iteritems():
                 S.save_user_history(username, H)
@@ -1365,7 +1363,7 @@ class Notebook(object):
         if username is None:
             return
         for filename, W in self.__worksheets.items():
-            if filename.startswith(username + "/"):
+            if filename[0] == username:
                 W.quit()
 
     def delete_doc_browser_worksheets(self):
