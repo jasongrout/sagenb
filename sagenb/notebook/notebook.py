@@ -86,16 +86,28 @@ class WorksheetDict(dict):
         self.storage = notebook._Notebook__storage
         dict.__init__(self, *args, **kwds)
 
+    def _normalize_key(self, key):
+        if isinstance(key, basestring):
+            username, ws_inode = key.split('/', 1)
+            key = (username, int(ws_inode))
+        return key
+
+    def __setitem__(self, key, value):
+        dict.__setitem__(self, self._normalize_key(key), value)
+
+    def __delitem__(self, key):
+        dict.__delitem__(self, self._normalize_key(key))
+
+    def __contains__(self, key):
+        dict.__contains__(self, self._normalize_key(key))
+
     def __getitem__(self, item):
         """
         Items have the form (username, path), where path is a string, or (username, ws_inode), where ws_inode is an integer.
 
         For backwards compatibility, we also support items that are strings of the form 'username/ws_inode'
         """
-        if isinstance(item, basestring):
-            username, ws_inode = item.split('/', 1)
-            ws_inode = int(ws_inode)
-            item = (username, ws_inode)
+        item = self._normalize_key(item)
 
         if item in self:
             return dict.__getitem__(self, item)
